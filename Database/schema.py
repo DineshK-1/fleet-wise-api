@@ -1,7 +1,7 @@
 
 from datetime import date, datetime
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class CabBase(BaseModel):
@@ -16,7 +16,7 @@ class CabBase(BaseModel):
         orm_mode = True
 
 class CabsResponse(BaseModel):
-    cabs: list[CabBase]
+    cabs: List[CabBase]
 
 class DriverBase(BaseModel):
     driver_first_name: str
@@ -32,4 +32,4 @@ class DriverBase(BaseModel):
         orm_mode = True
 
 class DriversResponse(BaseModel):
-    drivers: list[DriverBase]
+    drivers: List[DriverBase]
