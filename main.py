@@ -31,7 +31,7 @@ def get_db():
 def get_cabs(db: Session = Depends(get_db)):
     return {"cabs" : db.query(models.Cab).all()}
 
-@app.post("/create_cab", tags=["Cabs"])
+@app.post("/create_cab", tags=["Cabs"], response_model=CabBase)
 def create_cab(model: str, color: str, regno: str, db: Session = Depends(get_db)):
     cab_object = models.Cab(cab_model = model, cab_color=color, cab_regno = regno)
 
@@ -40,6 +40,8 @@ def create_cab(model: str, color: str, regno: str, db: Session = Depends(get_db)
         db.commit()
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Error creating cab")
+
+    return cab_object
     
 @app.put("/update_cab", response_model = CabBase, tags=["Cabs"])
 def update_cab(id: int, model: str = None, color: str = None, regno: str = None, db: Session = Depends(get_db)):
@@ -66,7 +68,7 @@ def update_cab(id: int, model: str = None, color: str = None, regno: str = None,
 def get_cabs(db: Session = Depends(get_db)):
     return {"drivers" : db.query(models.Driver).all()}
     
-@app.post("/create_driver", tags=["Drivers"])
+@app.post("/create_driver", tags=["Drivers"], response_model=DriverBase)
 def create_driver(first_name: str, last_name: str, ID: int, email: str, phone: int, db: Session = Depends(get_db)):
     driver_object = models.Driver(driver_first_name=first_name, driver_last_name=last_name, driver_ID = ID, driver_email = email, driver_phone=phone)
 
@@ -75,6 +77,8 @@ def create_driver(first_name: str, last_name: str, ID: int, email: str, phone: i
         db.commit()
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Error creating driver")
+    
+    return driver_object
     
 @app.put("/update_driver", response_model = DriverBase, tags=["Drivers"])
 def update_cab(id: int, first_name: str = None, last_name: str = None, ID: int = None, email: str = None, phone: int = None, db: Session = Depends(get_db)):

@@ -1,6 +1,7 @@
 
 from datetime import date, datetime
 from pydantic import BaseModel
+from typing import Optional
 
 
 class CabBase(BaseModel):
@@ -9,7 +10,7 @@ class CabBase(BaseModel):
     cab_color: str
     cab_regno: str
     created_date: date
-    time_updated: datetime | None
+    time_updated: Optional[datetime]
 
     class Config:
         orm_mode = True
@@ -25,7 +26,7 @@ class DriverBase(BaseModel):
     driver_phone: int
 
     created_date: date
-    time_updated: datetime | None
+    time_updated: Optional[datetime]
 
     class Config:
         orm_mode = True
