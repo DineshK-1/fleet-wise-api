@@ -5,12 +5,30 @@ from pydantic import BaseModel
 
 class CabBase(BaseModel):
     id: int
-    cab_name: str
     cab_model: str
     cab_color: str
     cab_regno: str
     created_date: date
-    time_updated: datetime
+    time_updated: datetime | None
 
     class Config:
         orm_mode = True
+
+class CabsResponse(BaseModel):
+    cabs: list[CabBase]
+
+class DriverBase(BaseModel):
+    driver_first_name: str
+    driver_last_name: str
+    driver_ID: int
+    driver_email: str
+    driver_phone: int
+
+    created_date: date
+    time_updated: datetime | None
+
+    class Config:
+        orm_mode = True
+
+class DriversResponse(BaseModel):
+    drivers: list[DriverBase]
