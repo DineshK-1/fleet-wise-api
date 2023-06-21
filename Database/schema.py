@@ -19,6 +19,7 @@ class CabsResponse(BaseModel):
     cabs: List[CabBase]
 
 class DriverBase(BaseModel):
+    id: int
     driver_first_name: str
     driver_last_name: str
     driver_ID: int
