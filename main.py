@@ -8,6 +8,8 @@ from Database import models
 from Database.sql import engine, SessionLocal
 from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase
 
+from Database.validation import validateDriver, validateCab
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fleet Wise API")
@@ -33,15 +35,19 @@ def get_cabs(db: Session = Depends(get_db)):
 
 @app.post("/create_cab", tags=["Cabs"], response_model=CabBase)
 def create_cab(model: str, color: str, regno: str, db: Session = Depends(get_db)):
-    cab_object = models.Cab(cab_model = model, cab_color=color, cab_regno = regno)
+    validation = validateCab(model, color, regno)
+    if validation == True:
+        cab_object = models.Cab(cab_model = model, cab_color=color, cab_regno = regno)
 
-    try:
-        db.add(cab_object)
-        db.commit()
-    except SQLAlchemyError:
-        raise HTTPException(status_code=500, detail="Error creating cab")
-
-    return cab_object
+        try:
+            db.add(cab_object)
+            db.commit()
+        except SQLAlchemyError:
+            raise HTTPException(status_code=500, detail="Error creating cab")
+        
+        return cab_object
+    else:
+        raise HTTPException(status_code=422, detail=validation) 
     
 @app.put("/update_cab", response_model = CabBase, tags=["Cabs"])
 def update_cab(id: int, model: str = None, color: str = None, regno: str = None, db: Session = Depends(get_db)):
@@ -70,15 +76,20 @@ def get_cabs(db: Session = Depends(get_db)):
     
 @app.post("/create_driver", tags=["Drivers"], response_model=DriverBase)
 def create_driver(first_name: str, last_name: str, ID: int, email: str, phone: int, db: Session = Depends(get_db)):
-    driver_object = models.Driver(driver_first_name=first_name, driver_last_name=last_name, driver_ID = ID, driver_email = email, driver_phone=phone)
+    validation = validateDriver(first_name, last_name, ID, phone, email)
 
-    try:
-        db.add(driver_object)
-        db.commit()
-    except SQLAlchemyError:
-        raise HTTPException(status_code=500, detail="Error creating driver")
-    
-    return driver_object
+    if validation == True:
+        driver_object = models.Driver(driver_first_name=first_name, driver_last_name=last_name, driver_ID = ID, driver_email = email, driver_phone=phone)
+
+        try:
+            db.add(driver_object)
+            db.commit()
+        except SQLAlchemyError:
+            raise HTTPException(status_code=500, detail="Error creating driver")
+        
+        return driver_object
+    else:
+        raise HTTPException(status_code=422, detail=validation)
     
 @app.put("/update_driver", response_model = DriverBase, tags=["Drivers"])
 def update_cab(id: int, first_name: str = None, last_name: str = None, ID: int = None, email: str = None, phone: int = None, db: Session = Depends(get_db)):
