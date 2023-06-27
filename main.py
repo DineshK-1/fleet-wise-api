@@ -85,7 +85,8 @@ def query_drivers(data: SearchRequest, db: Session = Depends(get_db)):
         query = query.filter(func.concat(models.Driver.driver_first_name+ " " + models.Driver.driver_last_name).ilike(f"%{data.name}%"))
     if data.ID:
         query = query.filter(models.Driver.driver_ID == data.ID)
-    query = query.all()
+        
+    query = query.order_by(models.Driver.driver_ID).all()
     return {"drivers" : query}
     
 @app.post("/create_driver", tags=["Drivers"], response_model=DriverBase)
