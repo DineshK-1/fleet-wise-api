@@ -12,10 +12,15 @@ def validateDriver(first, last, ID, phone, email):
     if not email:
         return "Email can't be empty"
     
+    if not validateEmail(email):   
+        return "Enter a valid email address"
+    
+    return True
+
+def validateEmail(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(pattern, email):
-        return "Enter a valid email"
-    
+        return False
     return True
 
 def validateCab(model, color, regno):
