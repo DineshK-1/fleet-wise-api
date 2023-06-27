@@ -21,7 +21,7 @@ class Driver(Base):
     driver_last_name = Column(String(200), nullable=False)
     driver_ID = Column(Integer, nullable=False)
     driver_email = Column(String(200), nullable=False)
-    driver_phone = Column(Integer, nullable=False)
+    driver_phone = Column(String(15), nullable=False)
 
     created_date = Column(DATE, nullable=False, server_default=func.now())
     time_updated = Column(TIMESTAMP(timezone=True), onupdate=func.now())
