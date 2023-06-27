@@ -34,3 +34,6 @@ class DriverBase(BaseModel):
 
 class DriversResponse(BaseModel):
     drivers: List[DriverBase]
+
+class DeleteResponse(BaseModel):
+    deleted: bool

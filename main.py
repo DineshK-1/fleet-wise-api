@@ -7,7 +7,7 @@ from sqlalchemy import func
 
 from Database import models
 from Database.sql import engine, SessionLocal
-from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase
+from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase, DeleteResponse
 
 from Database.validation import validateDriver, validateCab
 
@@ -130,10 +130,16 @@ def update_driver(id: int, first_name: str = None, last_name: str = None, ID: in
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Error updating Driver")
     
-@app.post("/delete_driver", tags=["Drivers"])
+@app.post("/delete_driver", response_model=DeleteResponse, tags=["Drivers"])
 def delete_driver(id: int, db: Session = Depends(get_db)):
+    driver = db.query(models.Driver).filter(models.Driver.id == id).first()
+
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
     try:
-        db.query(models.Driver.id == id).delete()
+        db.delete(driver)
         db.commit()
+
+        return {"deleted":True}
     except:
         raise HTTPException(status_code=404, detail="Error deleting Driver")
