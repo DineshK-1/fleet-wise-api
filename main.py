@@ -9,7 +9,7 @@ from Database import models
 from Database.sql import engine, SessionLocal
 from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase, DeleteResponse
 
-from Database.validation import validateDriver, validateCab
+from Database.validation import validateDriver, validateCab, validateEmail
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -120,6 +120,8 @@ def update_driver(id: int, first_name: str = None, last_name: str = None, ID: in
         if ID:
             driver_object.driver_ID = ID
         if email:
+            if not validateEmail(email):
+                raise HTTPException(status_code=500, detail="Enter a valid email address")
             driver_object.driver_email = email
         if phone:
             driver_object.driver_phone = phone
