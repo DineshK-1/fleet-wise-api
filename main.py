@@ -7,7 +7,7 @@ from sqlalchemy import func
 
 from Database import models
 from Database.sql import engine, SessionLocal
-from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase, DeleteResponse
+from Database.schema import CabBase, CabsResponse, DriversResponse, DriverBase, DeleteResponse, SearchRequest
 
 from Database.validation import validateDriver, validateCab, validateEmail
 
@@ -78,13 +78,13 @@ def get_drivers(db: Session = Depends(get_db)):
     return {"drivers" : query}
 
 @app.post("/get_drivers", response_model = DriversResponse, tags=["Drivers"])
-def query_drivers(name: str = None, ID: int = None, db: Session = Depends(get_db)):
+def query_drivers(data: SearchRequest, db: Session = Depends(get_db)):
     query = db.query(models.Driver)
 
-    if name:
-        query = query.filter(func.concat(models.Driver.driver_first_name+ " " + models.Driver.driver_last_name).ilike(f"%{name}%"))
-    if ID:
-        query = query.filter(models.Driver.driver_ID == ID)
+    if data.name:
+        query = query.filter(func.concat(models.Driver.driver_first_name+ " " + models.Driver.driver_last_name).ilike(f"%{data.name}%"))
+    if data.ID:
+        query = query.filter(models.Driver.driver_ID == data.ID)
     query = query.all()
     return {"drivers" : query}
     

@@ -37,3 +37,7 @@ class DriversResponse(BaseModel):
 
 class DeleteResponse(BaseModel):
     deleted: bool
+
+class SearchRequest(BaseModel):
+    name: Optional[str]
+    ID: Optional[int]
