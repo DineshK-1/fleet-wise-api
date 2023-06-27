@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 
 from Database import models
 from Database.sql import engine, SessionLocal
@@ -71,8 +72,21 @@ def update_cab(id: int, model: str = None, color: str = None, regno: str = None,
         raise HTTPException(status_code=500, detail="Error updating cab")
     
 @app.get("/get_drivers", response_model = DriversResponse, tags=["Drivers"])
-def get_cabs(db: Session = Depends(get_db)):
-    return {"drivers" : db.query(models.Driver).all()}
+def get_drivers(db: Session = Depends(get_db)):
+    query = db.query(models.Driver).order_by(models.Driver.driver_ID).all()
+
+    return {"drivers" : query}
+
+@app.post("/get_drivers", response_model = DriversResponse, tags=["Drivers"])
+def query_drivers(name: str = None, ID: int = None, db: Session = Depends(get_db)):
+    query = db.query(models.Driver)
+
+    if name:
+        query = query.filter(func.concat(models.Driver.driver_first_name+ " " + models.Driver.driver_last_name).ilike(f"%{name}%"))
+    if ID:
+        query = query.filter(models.Driver.driver_ID == ID)
+    query = query.all()
+    return {"drivers" : query}
     
 @app.post("/create_driver", tags=["Drivers"], response_model=DriverBase)
 def create_driver(first_name: str, last_name: str, ID: int, email: str, phone: int, db: Session = Depends(get_db)):
@@ -92,7 +106,7 @@ def create_driver(first_name: str, last_name: str, ID: int, email: str, phone: i
         raise HTTPException(status_code=422, detail=validation)
     
 @app.put("/update_driver", response_model = DriverBase, tags=["Drivers"])
-def update_cab(id: int, first_name: str = None, last_name: str = None, ID: int = None, email: str = None, phone: int = None, db: Session = Depends(get_db)):
+def update_driver(id: int, first_name: str = None, last_name: str = None, ID: int = None, email: str = None, phone: int = None, db: Session = Depends(get_db)):
     try:
         driver_object = db.query(models.Driver).get(id)
         
