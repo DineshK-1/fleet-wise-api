@@ -129,3 +129,11 @@ def update_driver(id: int, first_name: str = None, last_name: str = None, ID: in
         return driver_object
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Error updating Driver")
+    
+@app.post("/delete_driver", tags=["Drivers"])
+def delete_driver(id: int, db: Session = Depends(get_db)):
+    try:
+        db.query(models.Driver.id == id).delete()
+        db.commit()
+    except:
+        raise HTTPException(status_code=404, detail="Error deleting Driver")
