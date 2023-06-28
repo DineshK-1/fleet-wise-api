@@ -165,3 +165,20 @@ def assign_cab(cab_id: int, driver_id: int, db: Session = Depends(get_db)):
     
     cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
     return cab
+
+@app.post("/delete_cab_assignment", response_model= CabBase, tags=["Cabs"])
+def delete_cab_assignment(cab_id: int, db: Session = Depends(get_db)):
+    cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
+
+    if not cab:
+        raise HTTPException(status_code=404, detail="Cab not found")
+    if not cab.driver:
+        raise HTTPException(status_code=404, detail="Cab has no driver assigned")
+    cab.driver = None
+    try:
+        db.commit()
+    except:
+        raise HTTPException(status_code=404, detail="Error assigning cab")
+    
+    cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
+    return cab
