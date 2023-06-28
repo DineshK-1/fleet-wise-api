@@ -147,7 +147,7 @@ def delete_driver(id: int, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=404, detail="Error deleting driver")
     
-@app.post("/assign_cab", tags=["Cabs"])
+@app.post("/assign_cab", response_model=CabBase, tags=["Cabs"])
 def assign_cab(cab_id: int, driver_id: int, db: Session = Depends(get_db)):
     cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
     driver = db.query(models.Driver).filter(models.Driver.id == driver_id).first()
