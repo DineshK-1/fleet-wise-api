@@ -3,6 +3,14 @@ from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional, List
 
+class DriverForCabs(BaseModel):
+    id: Optional[int]
+    driver_first_name: Optional[str]
+    driver_last_name: Optional[str]
+    driver_ID: Optional[int]
+
+    class Config:
+        orm_mode = True
 
 class CabBase(BaseModel):
     id: int
@@ -11,7 +19,7 @@ class CabBase(BaseModel):
     cab_regno: str
     created_date: date
     time_updated: Optional[datetime]
-    driver_id : Optional[int]
+    driver: Optional[DriverForCabs]
 
     class Config:
         orm_mode = True
