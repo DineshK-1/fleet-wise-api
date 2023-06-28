@@ -21,7 +21,7 @@ class CabsResponse(BaseModel):
 
 class CabsForDrivers(BaseModel):
     id: Optional[int]
-    cab_color: Optional[str]
+    cab_model: Optional[str]
 
     class Config:
         orm_mode = True
