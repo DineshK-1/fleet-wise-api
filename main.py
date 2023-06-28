@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
 
@@ -73,7 +73,7 @@ def update_cab(id: int, model: str = None, color: str = None, regno: str = None,
     
 @app.get("/get_drivers", response_model = DriversResponse, tags=["Drivers"])
 def get_drivers(db: Session = Depends(get_db)):
-    query = db.query(models.Driver).order_by(models.Driver.driver_ID).all()
+    query = db.query(models.Driver).options(joinedload(models.Driver.cab)).order_by(models.Driver.driver_ID).all()
 
     return {"drivers" : query}
 
@@ -145,4 +145,23 @@ def delete_driver(id: int, db: Session = Depends(get_db)):
 
         return {"deleted":True}
     except:
-        raise HTTPException(status_code=404, detail="Error deleting Driver")
+        raise HTTPException(status_code=404, detail="Error deleting driver")
+    
+@app.post("/assign_cab", tags=["Cabs"])
+def assign_cab(cab_id: int, driver_id: int, db: Session = Depends(get_db)):
+    cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
+    driver = db.query(models.Driver).filter(models.Driver.id == driver_id).first()
+
+    if not cab:
+        raise HTTPException(status_code=404, detail="Cab not found")
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    
+    cab.driver_id = driver.id
+    try:
+        db.commit()
+    except:
+        raise HTTPException(status_code=404, detail="Error assigning cab")
+    
+    cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
+    return cab

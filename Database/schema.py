@@ -11,12 +11,20 @@ class CabBase(BaseModel):
     cab_regno: str
     created_date: date
     time_updated: Optional[datetime]
+    driver_id : Optional[int]
 
     class Config:
         orm_mode = True
 
 class CabsResponse(BaseModel):
     cabs: List[CabBase]
+
+class CabsForDrivers(BaseModel):
+    id: Optional[int]
+    cab_color: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 class DriverBase(BaseModel):
     id: int
@@ -28,6 +36,7 @@ class DriverBase(BaseModel):
 
     created_date: date
     time_updated: Optional[datetime]
+    cab: Optional[CabsForDrivers]
 
     class Config:
         orm_mode = True

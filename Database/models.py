@@ -1,6 +1,7 @@
 from .sql import Base
-from sqlalchemy import DATE, TIMESTAMP, Column, Integer, String
+from sqlalchemy import DATE, TIMESTAMP, Column, Integer, String, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 class Cab(Base):
     __tablename__ = "cabs"
@@ -12,6 +13,9 @@ class Cab(Base):
 
     created_date = Column(DATE, nullable=False, server_default=func.now())
     time_updated = Column(TIMESTAMP(timezone=True), onupdate=func.now())
+
+    driver_id = Column(Integer, ForeignKey('drivers.id', ondelete='SET NULL'), unique=True)
+    driver = relationship('Driver', back_populates='cab')
 
 class Driver(Base):
     __tablename__ = "drivers"
@@ -25,3 +29,5 @@ class Driver(Base):
 
     created_date = Column(DATE, nullable=False, server_default=func.now())
     time_updated = Column(TIMESTAMP(timezone=True), onupdate=func.now())
+
+    cab = relationship('Cab', back_populates='driver', uselist=False, cascade='all, delete-orphan')
