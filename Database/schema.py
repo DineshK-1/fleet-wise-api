@@ -58,3 +58,5 @@ class DeleteResponse(BaseModel):
 class SearchRequest(BaseModel):
     name: Optional[str]
     ID: Optional[int]
+    regno: Optional[str]
+    model: Optional[str]
