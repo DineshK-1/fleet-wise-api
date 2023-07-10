@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
+from sqlalchemy import func, update
 
 from Database import models
 from Database.sql import engine, SessionLocal
@@ -32,7 +32,7 @@ def get_db():
 
 @app.get("/get_cabs", response_model = CabsResponse, tags=["Cabs"])
 def get_cabs(db: Session = Depends(get_db)):
-    return {"cabs" : db.query(models.Cab).all()}
+    return {"cabs" : db.query(models.Cab).order_by(models.Cab.id).all()}
 
 @app.post("/create_cab", tags=["Cabs"], response_model=CabBase)
 def create_cab(model: str, color: str, regno: str, db: Session = Depends(get_db)):
@@ -70,6 +70,20 @@ def update_cab(id: int, model: str = None, color: str = None, regno: str = None,
         return cab_object
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Error updating cab")
+    
+@app.post("/delete_cab", response_model=DeleteResponse, tags=["Cabs"])
+def delete_cab(id: int, db: Session = Depends(get_db)):
+    cab = db.query(models.Cab).filter(models.Cab.id == id).first()
+
+    if not cab:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    try:
+        db.delete(cab)
+        db.commit()
+
+        return {"deleted":True}
+    except:
+        raise HTTPException(status_code=404, detail="Error deleting Cab")
     
 @app.get("/get_drivers", response_model = DriversResponse, tags=["Drivers"])
 def get_drivers(db: Session = Depends(get_db)):
@@ -166,19 +180,20 @@ def assign_cab(cab_id: int, driver_id: int, db: Session = Depends(get_db)):
     cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
     return cab
 
-@app.post("/delete_cab_assignment", response_model= CabBase, tags=["Cabs"])
+@app.post("/delete_cab_assignment", response_model=CabBase, tags=["Cabs"])
 def delete_cab_assignment(cab_id: int, db: Session = Depends(get_db)):
     cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
-
     if not cab:
         raise HTTPException(status_code=404, detail="Cab not found")
     if not cab.driver:
         raise HTTPException(status_code=404, detail="Cab has no driver assigned")
-    cab.driver = None
+    
+    cab.driver_id = None
+
     try:
-        db.commit()
+        db.commit() 
     except:
         raise HTTPException(status_code=404, detail="Error assigning cab")
     
-    cab = db.query(models.Cab).filter(models.Cab.id == cab_id).first()
+    db.refresh(cab)
     return cab
