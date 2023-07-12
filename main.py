@@ -197,3 +197,16 @@ def delete_cab_assignment(cab_id: int, db: Session = Depends(get_db)):
     
     db.refresh(cab)
     return cab
+
+@app.post("/get_cabs", response_model = CabsResponse, tags=["Cabs"])
+def query_cabs(data: SearchRequest, db: Session = Depends(get_db)):
+    query = db.query(models.Cab)
+
+    if data.regno:
+        query = query.filter(models.Cab.cab_regno == data.regno)
+
+    if data.model:
+        query = query.filter(models.Cab.cab_model == data.model)
+
+    query = query.order_by(models.Cab.id).all()
+    return {"cabs" : query}
